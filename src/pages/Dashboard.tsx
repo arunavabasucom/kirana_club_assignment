@@ -14,11 +14,18 @@ import {
   Badge,
   Button,
 
+
 } from "@shopify/polaris";
 import { fetchContests } from "../services/api";
 import { Contest } from "../types";
 import ContestGraph from "../components/ContestGraph";
-
+// ...existing code...
+interface AppliedFilterInterface {
+  key: string;
+  label: string;
+  onRemove: () => void;
+}
+// ...existing code...
 const Dashboard: React.FC = () => {
   const [contests, setContests] = useState<Contest[]>([]);
   const [filteredContests, setFilteredContests] = useState<Contest[]>([]);
@@ -111,7 +118,13 @@ const Dashboard: React.FC = () => {
 
   return (
     <Page title="Codeforces Contest Dashboard">
-      <Layout>
+      <div style={{
+        marginBottom: "20px",
+      }}>
+
+      <Layout
+      
+      >
         <Layout.Section>
           <Card>
             <Filters
@@ -119,77 +132,75 @@ const Dashboard: React.FC = () => {
               filters={[
                 {
                   key: "typeFilter",
-                  label: "Filter by Type",
+                  label: "Type",
                   filter: (
                     <Select
-                      label="Filter by Type"
-                      options={[
-                        { label: "All", value: "All" },
-                        { label: "CF", value: "CF" },
-                        { label: "ICPC", value: "ICPC" },
-                      ]}
-                      value={typeFilter || "All"}
-                      onChange={handleTypeFilterChange}
+                    label="Type"
+                    options={[
+                      { label: "All", value: "All" },
+                      { label: "CF", value: "CF" },
+                      { label: "ICPC", value: "ICPC" },
+                    ]}
+                    value={typeFilter || "All"}
+                    onChange={handleTypeFilterChange}
                     />
                   ),
                 },
                 {
                   key: "phaseFilter",
-                  label: "Filter by Phase",
+                  label: "Phase",
                   filter: (
                     <Select
-                      label="Filter by Phase"
-                      options={[
-                        { label: "All", value: "All" },
-                        { label: "ONGOING", value: "ONGOING" },
-                        { label: "FINISHED", value: "FINISHED" },
-                      ]}
-                      value={phaseFilter || "All"}
-                      onChange={handlePhaseFilterChange}
+                    label="Phase"
+                    options={[
+                      { label: "All", value: "All" },
+                      { label: "ONGOING", value: "ONGOING" },
+                      { label: "FINISHED", value: "FINISHED" },
+                    ]}
+                    value={phaseFilter || "All"}
+                    onChange={handlePhaseFilterChange}
                     />
                   ),
                 },
               ]}
-              appliedFilters={[
-                typeFilter && typeFilter !== "All"
-                  ? {
-                      key: "typeFilter",
-                      label: `Type: ${typeFilter}`,
-                      onRemove: () => setTypeFilter(null),
-                    }
-                  : null,
-                phaseFilter && phaseFilter !== "All"
-                  ? {
-                      key: "phaseFilter",
-                      label: `Phase: ${phaseFilter}`,
-                      onRemove: () => setPhaseFilter(null),
-                    }
-                  : null,
-              ].filter(Boolean)}
-              onQueryChange={handleSearchChange}
-              onQueryClear={() => setSearch("")}
-              onClearAll={() => {
-                setSearch("");
-                setTypeFilter(null);
-                setPhaseFilter(null);
-              }}
-            />
+
+appliedFilters={[
+  typeFilter && typeFilter !== "All"
+    ? {
+        key: "typeFilter",
+        label: `Type: ${typeFilter}`,
+        onRemove: () => setTypeFilter(null),
+      }
+    : null,
+  phaseFilter && phaseFilter !== "All"
+    ? {
+        key: "phaseFilter",
+        label: `Phase: ${phaseFilter}`,
+        onRemove: () => setPhaseFilter(null),
+      }
+    : null,
+].filter((filter): filter is AppliedFilterInterface => filter !== null)}
+
+              />
           </Card>
         </Layout.Section>
 
         <Layout.Section>
-          <Card title="Contest Graph" >
-            {/* Pass filtered contests to the graph */}
+          <Card >
+
             <ContestGraph contests={filteredContests} />
           </Card>
         </Layout.Section>
+
       
+
       </Layout>
+              </div>
 
       <Layout>
         <Layout.Section>
           <Card>
-            <Box padding={{ xs: "400", sm: "400", }}>
+            <Box padding={{ xs: "400", sm: "400" }}>
               <Select
                 label="Items per page"
                 options={[
