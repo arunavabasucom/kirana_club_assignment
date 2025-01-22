@@ -1,6 +1,6 @@
 import  { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Contest, fetchContests } from "../services/api";
+import { fetchContests } from "../services/api";
 import {
   Badge,
   Box,
@@ -11,13 +11,14 @@ import {
   SkeletonBodyText,
   Text,
 } from "@shopify/polaris";
-import KeyValue from "../components/KeyValue"; // Import reusable component
+import KeyValue from "../components/KeyValue";
+import { Contest } from "../types";
 
 function ContestPage() {
   const { id } = useParams<{ id: string }>();
   const [contest, setContest] = useState<Contest | null>(null);
-  const [loading, setLoading] = useState<boolean>(true); // Track loading state
-
+  const [loading, setLoading] = useState<boolean>(true);
+  const title: string = "Codeforces Contest Information";
   useEffect(() => {
     const loadContest = async () => {
       try {
@@ -43,12 +44,10 @@ function ContestPage() {
 
   if (loading) {
     return (
-      <SkeletonPage title="Codeforces Contest Dashboard" primaryAction>
+      <SkeletonPage title={title} primaryAction>
         <Layout>
           <Layout.Section>
             <Card>
-              <SkeletonBodyText />
-              <SkeletonBodyText />
               <SkeletonBodyText />
             </Card>
           </Layout.Section>
@@ -59,10 +58,18 @@ function ContestPage() {
 
   if (!contest) {
     return (
-      <Page title="Codeforces Contest Dashboard">
-        <Text variant="bodyMd" as="p">
+      <Page >
+        <div style={{
+          display:"flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+          height:"100vh"
+        }}>
+        <Text variant="bodyMd" as="p" >
           Contest not found or an error occurred while fetching data.
         </Text>
+        </div>
       </Page>
     );
   }
@@ -72,12 +79,12 @@ function ContestPage() {
   ).toLocaleString();
 
   return (
-    <Page title={`Contest: ${contest.name}`}>
+    <Page title={title}>
       <Layout>
         <Layout.Section>
           <Card>
             <Text as="h2" variant="headingLg" fontWeight="bold">
-              Contest Information
+            {contest.name}
             </Text>
             <Box padding="400">
               <KeyValue label="ID" value={contest.id} />

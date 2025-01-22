@@ -1,0 +1,1 @@
+export const API_URL:string = "https://codeforces.com/api/contest.list";

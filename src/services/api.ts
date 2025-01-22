@@ -1,15 +1,9 @@
-export interface Contest {
-  id: number;
-  name: string;
-  type: string;
-  phase: string;
-  durationSeconds: number;
-  startTimeSeconds: number;
-}
+import { API_URL } from "../constants";
+import { Contest } from "../types";
 
 export const fetchContests = async (): Promise<Contest[]> => {
   try {
-    const response = await fetch("https://codeforces.com/api/contest.list");
+    const response = await fetch(API_URL);
 
     if (!response.ok) {
       throw new Error("Failed to fetch contests");

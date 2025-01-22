@@ -14,7 +14,8 @@ import {
   Badge,
   Button,
 } from "@shopify/polaris";
-import { fetchContests, Contest } from "../services/api";
+import { fetchContests } from "../services/api";
+import { Contest } from "../types";
 
 const Dashboard: React.FC = () => {
   const [contests, setContests] = useState<Contest[]>([]);
