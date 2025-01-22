@@ -14,18 +14,11 @@ import {
   Badge,
   Button,
 
-
 } from "@shopify/polaris";
 import { fetchContests } from "../services/api";
 import { Contest } from "../types";
 import ContestGraph from "../components/ContestGraph";
-// ...existing code...
-interface AppliedFilterInterface {
-  key: string;
-  label: string;
-  onRemove: () => void;
-}
-// ...existing code...
+
 const Dashboard: React.FC = () => {
   const [contests, setContests] = useState<Contest[]>([]);
   const [filteredContests, setFilteredContests] = useState<Contest[]>([]);
@@ -163,31 +156,36 @@ const Dashboard: React.FC = () => {
                   ),
                 },
               ]}
-
-appliedFilters={[
-  typeFilter && typeFilter !== "All"
-    ? {
-        key: "typeFilter",
-        label: `Type: ${typeFilter}`,
-        onRemove: () => setTypeFilter(null),
-      }
-    : null,
-  phaseFilter && phaseFilter !== "All"
-    ? {
-        key: "phaseFilter",
-        label: `Phase: ${phaseFilter}`,
-        onRemove: () => setPhaseFilter(null),
-      }
-    : null,
-].filter((filter): filter is AppliedFilterInterface => filter !== null)}
-
+              appliedFilters={[
+                typeFilter && typeFilter !== "All"
+                ? {
+                  key: "typeFilter",
+                  label: `Type: ${typeFilter}`,
+                  onRemove: () => setTypeFilter(null),
+                }
+                : null,
+                phaseFilter && phaseFilter !== "All"
+                ? {
+                  key: "phaseFilter",
+                  label: `Phase: ${phaseFilter}`,
+                  onRemove: () => setPhaseFilter(null),
+                }
+                : null,
+              ].filter(Boolean)}
+              onQueryChange={handleSearchChange}
+              onQueryClear={() => setSearch("")}
+              onClearAll={() => {
+                setSearch("");
+                setTypeFilter(null);
+                setPhaseFilter(null);
+              }}
               />
           </Card>
         </Layout.Section>
 
         <Layout.Section>
-          <Card >
-
+          <Card title="Contest Graph">
+            {/* Pass filtered contests to the graph */}
             <ContestGraph contests={filteredContests} />
           </Card>
         </Layout.Section>
