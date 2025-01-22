@@ -51,7 +51,7 @@ const Dashboard: React.FC = () => {
           contest.name.toLowerCase().includes(search.toLowerCase())
       )
     );
-    setCurrentPage(1); // Reset to the first page when filtering
+    setCurrentPage(1); 
   }, [search, typeFilter, contests]);
 
   const handleSearchChange = (value: string) => setSearch(value);
@@ -60,7 +60,7 @@ const Dashboard: React.FC = () => {
   const handleItemsPerPageChange = (value: string) =>
     setItemsPerPage(parseInt(value, 10));
 
-  // Pagination calculations
+
   const totalItems = filteredContests.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const paginatedContests = filteredContests.slice(

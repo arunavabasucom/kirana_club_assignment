@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Contest, fetchContests } from "../services/api";
 import {
@@ -11,6 +11,7 @@ import {
   SkeletonBodyText,
   Text,
 } from "@shopify/polaris";
+import KeyValue from "../components/KeyValue"; // Import reusable component
 
 function ContestPage() {
   const { id } = useParams<{ id: string }>();
@@ -39,13 +40,15 @@ function ContestPage() {
     };
     loadContest();
   }, [id]);
-  const title: string = "Codeforces Contest Information";
+
   if (loading) {
     return (
-      <SkeletonPage title={title} primaryAction>
+      <SkeletonPage title="Codeforces Contest Dashboard" primaryAction>
         <Layout>
           <Layout.Section>
             <Card>
+              <SkeletonBodyText />
+              <SkeletonBodyText />
               <SkeletonBodyText />
             </Card>
           </Layout.Section>
@@ -56,7 +59,7 @@ function ContestPage() {
 
   if (!contest) {
     return (
-      <Page title={title}>
+      <Page title="Codeforces Contest Dashboard">
         <Text variant="bodyMd" as="p">
           Contest not found or an error occurred while fetching data.
         </Text>
@@ -69,38 +72,34 @@ function ContestPage() {
   ).toLocaleString();
 
   return (
-    <Page title={title}>
+    <Page title={`Contest: ${contest.name}`}>
       <Layout>
         <Layout.Section>
           <Card>
             <Text as="h2" variant="headingLg" fontWeight="bold">
-              {contest.name}
+              Contest Information
             </Text>
             <Box padding="400">
-              <Text variant="bodyMd" as="p">
-                <strong>ID:</strong> {contest.id}
-              </Text>
-              <Text variant="bodyMd" as="p">
-                <strong>Name:</strong> {contest.name}
-              </Text>
-              <Text variant="bodyMd" as="p">
-                <strong>Type:</strong> {contest.type}
-              </Text>
-              <Text variant="bodyMd" as="p">
-                <strong>Phase:</strong>{" "}
-                <Badge
-                  tone={contest.phase === "FINISHED" ? "success" : "attention"}
-                >
-                  {contest.phase}
-                </Badge>
-              </Text>
-              <Text variant="bodyMd" as="p">
-                <strong>Start Time:</strong> {localStartTime}
-              </Text>
-              <Text variant="bodyMd" as="p">
-                <strong>Duration:</strong>{" "}
-                {(contest.durationSeconds / 3600).toFixed(2)} hours
-              </Text>
+              <KeyValue label="ID" value={contest.id} />
+              <KeyValue label="Name" value={contest.name} />
+              <KeyValue label="Type" value={contest.type} />
+              <KeyValue
+                label="Phase"
+                value={
+                  <Badge
+                    tone={
+                      contest.phase === "FINISHED" ? "success" : "attention"
+                    }
+                  >
+                    {contest.phase}
+                  </Badge>
+                }
+              />
+              <KeyValue label="Start Time" value={localStartTime} />
+              <KeyValue
+                label="Duration"
+                value={`${(contest.durationSeconds / 3600).toFixed(2)} hours`}
+              />
             </Box>
           </Card>
         </Layout.Section>
