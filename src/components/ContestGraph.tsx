@@ -8,6 +8,8 @@ import {
   Tooltip,
   Legend,
   LinearScale,
+  ChartOptions,
+  ChartData,
 } from "chart.js";
 
 // Registering chart.js components
@@ -31,11 +33,8 @@ interface ContestGraphProps {
 
 const ContestGraph: React.FC<ContestGraphProps> = ({ contests }) => {
   // Prepare the chart data
-  const data = {
-      labels: contests.map((contest) => {
-          console.log(contest.name);
-          return contest.name
-      }),
+  const data: ChartData<"bar"> = {
+    labels: contests.map((contest) => contest.name),
     datasets: [
       {
         label: "Contest Duration (hours)",
@@ -48,12 +47,15 @@ const ContestGraph: React.FC<ContestGraphProps> = ({ contests }) => {
   };
 
   // Chart options
-  const options = {
+  const options: ChartOptions<"bar"> = {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
       x: {
-        type: "category",
+        title: {
+          display: true,
+          text: "Contest Name",
+        },
         ticks: {
           autoSkip: true,
           maxRotation: 45,
@@ -65,8 +67,15 @@ const ContestGraph: React.FC<ContestGraphProps> = ({ contests }) => {
           text: "Duration (hours)",
         },
         ticks: {
-          beginAtZero: true,
+          // beginAtZero: true,
+          
         },
+      },
+    },
+    plugins: {
+      legend: {
+        display: true,
+        position: "top",
       },
     },
   };

@@ -13,7 +13,8 @@ import {
   SkeletonBodyText,
   Badge,
   Button,
-
+  Text,
+  AppliedFilterInterface,
 } from "@shopify/polaris";
 import { fetchContests } from "../services/api";
 import { Contest } from "../types";
@@ -111,89 +112,90 @@ const Dashboard: React.FC = () => {
 
   return (
     <Page title="Codeforces Contest Dashboard">
-      <div style={{
-        marginBottom: "20px",
-      }}>
-
-      <Layout
-      
+      <div
+        style={{
+          marginBottom: "20px",
+        }}
       >
-        <Layout.Section>
-          <Card>
-            <Filters
-              queryValue={search}
-              filters={[
-                {
-                  key: "typeFilter",
-                  label: "Type",
-                  filter: (
-                    <Select
-                    label="Type"
-                    options={[
-                      { label: "All", value: "All" },
-                      { label: "CF", value: "CF" },
-                      { label: "ICPC", value: "ICPC" },
-                    ]}
-                    value={typeFilter || "All"}
-                    onChange={handleTypeFilterChange}
-                    />
-                  ),
-                },
-                {
-                  key: "phaseFilter",
-                  label: "Phase",
-                  filter: (
-                    <Select
-                    label="Phase"
-                    options={[
-                      { label: "All", value: "All" },
-                      { label: "ONGOING", value: "ONGOING" },
-                      { label: "FINISHED", value: "FINISHED" },
-                    ]}
-                    value={phaseFilter || "All"}
-                    onChange={handlePhaseFilterChange}
-                    />
-                  ),
-                },
-              ]}
-              appliedFilters={[
-                typeFilter && typeFilter !== "All"
-                ? {
-                  key: "typeFilter",
-                  label: `Type: ${typeFilter}`,
-                  onRemove: () => setTypeFilter(null),
+        <Layout>
+          <Layout.Section>
+            <Card>
+              <Filters
+                queryValue={search}
+                filters={[
+                  {
+                    key: "typeFilter",
+                    label: "Type",
+                    filter: (
+                      <Select
+                        label="Type"
+                        options={[
+                          { label: "All", value: "All" },
+                          { label: "CF", value: "CF" },
+                          { label: "ICPC", value: "ICPC" },
+                        ]}
+                        value={typeFilter || "All"}
+                        onChange={handleTypeFilterChange}
+                      />
+                    ),
+                  },
+                  {
+                    key: "phaseFilter",
+                    label: "Phase",
+                    filter: (
+                      <Select
+                        label="Phase"
+                        options={[
+                          { label: "All", value: "All" },
+                          { label: "ONGOING", value: "ONGOING" },
+                          { label: "FINISHED", value: "FINISHED" },
+                        ]}
+                        value={phaseFilter || "All"}
+                        onChange={handlePhaseFilterChange}
+                      />
+                    ),
+                  },
+                ]}
+                appliedFilters={
+                  [
+                    typeFilter && typeFilter !== "All"
+                      ? {
+                          key: "typeFilter",
+                          label: `Type: ${typeFilter}`,
+                          onRemove: () => setTypeFilter(null),
+                        }
+                      : undefined,
+                    phaseFilter && phaseFilter !== "All"
+                      ? {
+                          key: "phaseFilter",
+                          label: `Phase: ${phaseFilter}`,
+                          onRemove: () => setPhaseFilter(null),
+                        }
+                      : undefined,
+                  ].filter(Boolean) as AppliedFilterInterface[]
                 }
-                : null,
-                phaseFilter && phaseFilter !== "All"
-                ? {
-                  key: "phaseFilter",
-                  label: `Phase: ${phaseFilter}`,
-                  onRemove: () => setPhaseFilter(null),
-                }
-                : null,
-              ].filter(Boolean)}
-              onQueryChange={handleSearchChange}
-              onQueryClear={() => setSearch("")}
-              onClearAll={() => {
-                setSearch("");
-                setTypeFilter(null);
-                setPhaseFilter(null);
-              }}
+                onQueryChange={handleSearchChange}
+                onQueryClear={() => setSearch("")}
+                onClearAll={() => {
+                  setSearch("");
+                  setTypeFilter(null);
+                  setPhaseFilter(null);
+                }}
               />
-          </Card>
-        </Layout.Section>
+            </Card>
+          </Layout.Section>
 
-        <Layout.Section>
-          <Card title="Contest Graph">
-            {/* Pass filtered contests to the graph */}
-            <ContestGraph contests={filteredContests} />
-          </Card>
-        </Layout.Section>
-
-      
-
-      </Layout>
-              </div>
+          <Layout.Section>
+            <Card>
+              <Text as="h2" variant="headingLg" fontWeight="bold">
+                Contest Graph
+              </Text>
+              {/* Pass filtered contests to the graph */}
+              <ContestGraph contests={filteredContests} />
+            </Card>
+          </Layout.Section>
+        </Layout>
+      </div>
 
       <Layout>
         <Layout.Section>
