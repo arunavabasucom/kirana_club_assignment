@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Page,
@@ -13,9 +13,11 @@ import {
   SkeletonBodyText,
   Badge,
   Button,
+
 } from "@shopify/polaris";
 import { fetchContests } from "../services/api";
 import { Contest } from "../types";
+import ContestGraph from "../components/ContestGraph";
 
 const Dashboard: React.FC = () => {
   const [contests, setContests] = useState<Contest[]>([]);
@@ -23,10 +25,11 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string>("");
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
+  const [phaseFilter, setPhaseFilter] = useState<string | null>(null);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10); 
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,18 +52,20 @@ const Dashboard: React.FC = () => {
       contests.filter(
         (contest) =>
           (typeFilter === null || contest.type === typeFilter) &&
+          (phaseFilter === null || contest.phase === phaseFilter) &&
           contest.name.toLowerCase().includes(search.toLowerCase())
       )
     );
-    setCurrentPage(1); 
-  }, [search, typeFilter, contests]);
+    setCurrentPage(1);
+  }, [search, typeFilter, phaseFilter, contests]);
 
   const handleSearchChange = (value: string) => setSearch(value);
   const handleTypeFilterChange = (value: string) =>
     setTypeFilter(value === "All" ? null : value);
+  const handlePhaseFilterChange = (value: string) =>
+    setPhaseFilter(value === "All" ? null : value);
   const handleItemsPerPageChange = (value: string) =>
     setItemsPerPage(parseInt(value, 10));
-
 
   const totalItems = filteredContests.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -128,30 +133,63 @@ const Dashboard: React.FC = () => {
                     />
                   ),
                 },
+                {
+                  key: "phaseFilter",
+                  label: "Filter by Phase",
+                  filter: (
+                    <Select
+                      label="Filter by Phase"
+                      options={[
+                        { label: "All", value: "All" },
+                        { label: "ONGOING", value: "ONGOING" },
+                        { label: "FINISHED", value: "FINISHED" },
+                      ]}
+                      value={phaseFilter || "All"}
+                      onChange={handlePhaseFilterChange}
+                    />
+                  ),
+                },
               ]}
-              appliedFilters={
+              appliedFilters={[
                 typeFilter && typeFilter !== "All"
-                  ? [
-                      {
-                        key: "typeFilter",
-                        label: `Type: ${typeFilter}`,
-                        onRemove: () => setTypeFilter(null), // Clear the filter
-                      },
-                    ]
-                  : []
-              }
+                  ? {
+                      key: "typeFilter",
+                      label: `Type: ${typeFilter}`,
+                      onRemove: () => setTypeFilter(null),
+                    }
+                  : null,
+                phaseFilter && phaseFilter !== "All"
+                  ? {
+                      key: "phaseFilter",
+                      label: `Phase: ${phaseFilter}`,
+                      onRemove: () => setPhaseFilter(null),
+                    }
+                  : null,
+              ].filter(Boolean)}
               onQueryChange={handleSearchChange}
               onQueryClear={() => setSearch("")}
               onClearAll={() => {
                 setSearch("");
                 setTypeFilter(null);
+                setPhaseFilter(null);
               }}
             />
           </Card>
         </Layout.Section>
+
+        <Layout.Section>
+          <Card title="Contest Graph" >
+            {/* Pass filtered contests to the graph */}
+            <ContestGraph contests={filteredContests} />
+          </Card>
+        </Layout.Section>
+      
+      </Layout>
+
+      <Layout>
         <Layout.Section>
           <Card>
-            <Box padding={{ xs: "400", sm: "400" }}>
+            <Box padding={{ xs: "400", sm: "400", }}>
               <Select
                 label="Items per page"
                 options={[
@@ -176,14 +214,13 @@ const Dashboard: React.FC = () => {
               headings={["ID", "Name", "Type", "Phase", "Duration", "Action"]}
               rows={rows}
               footerContent={`Showing ${paginatedContests.length} of ${totalItems} contests`}
-              truncate ={true}
+              truncate={true}
             />
           </Card>
         </Layout.Section>
+
         <Layout.Section>
-          <Box
-            padding={{ xs: "400", sm: "400" }}
-          >
+          <Box padding={{ xs: "400", sm: "400" }}>
             <Pagination
               hasPrevious={currentPage > 1}
               onPrevious={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
