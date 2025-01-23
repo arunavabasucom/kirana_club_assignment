@@ -4,6 +4,7 @@ specifiers:
   '@eslint/js': ^9.17.0
   '@shopify/app-bridge-react': ^4.1.6
   '@shopify/polaris': ^13.9.2
+  '@shopify/polaris-icons': ^9.3.0
   '@types/react': ^18.3.18
   '@types/react-dom': ^18.3.5
   '@vitejs/plugin-react-swc': ^3.5.0
@@ -23,6 +24,7 @@ specifiers:
 dependencies:
   '@shopify/app-bridge-react': 4.1.6_nnrd3gsncyragczmpvfhocinkq
   '@shopify/polaris': 13.9.2_nnrd3gsncyragczmpvfhocinkq
+  '@shopify/polaris-icons': 9.3.0_react@18.3.1
   chart.js: 4.4.7
   react: 18.3.1
   react-chartjs-2: 5.3.0_nkooqsr7gngh46ypo2mqckjesy

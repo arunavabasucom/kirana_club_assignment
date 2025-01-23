@@ -14,19 +14,26 @@ import {
   Badge,
   Button,
   Text,
-  AppliedFilterInterface,
+  Tooltip,
 } from "@shopify/polaris";
+import { StarFilledIcon, StarIcon } from "@shopify/polaris-icons";
 import { fetchContests } from "../services/api";
 import { Contest } from "../types";
 import ContestGraph from "../components/ContestGraph";
 
 const Dashboard: React.FC = () => {
+  //states
   const [contests, setContests] = useState<Contest[]>([]);
   const [filteredContests, setFilteredContests] = useState<Contest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [search, setSearch] = useState<string>("");
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [phaseFilter, setPhaseFilter] = useState<string | null>(null);
+  const [favoriteContests, setFavoriteContests] = useState<string[]>(() => {
+    const savedFavorites = localStorage.getItem("favoriteContests");
+    return savedFavorites ? JSON.parse(savedFavorites) : [];
+  });
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState<boolean>(false);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -49,16 +56,35 @@ const Dashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setFilteredContests(
-      contests.filter(
-        (contest) =>
-          (typeFilter === null || contest.type === typeFilter) &&
-          (phaseFilter === null || contest.phase === phaseFilter) &&
-          contest.name.toLowerCase().includes(search.toLowerCase())
-      )
+    localStorage.setItem("favoriteContests", JSON.stringify(favoriteContests));
+  }, [favoriteContests]);
+
+  useEffect(() => {
+    const filtered = contests.filter(
+      (contest) =>
+        (typeFilter === null || contest.type === typeFilter) &&
+        (phaseFilter === null || contest.phase === phaseFilter) &&
+        contest.name.toLowerCase().includes(search.toLowerCase()) &&
+        (!showFavoritesOnly || favoriteContests.includes(contest.id.toString()))
     );
+    setFilteredContests(filtered);
     setCurrentPage(1);
-  }, [search, typeFilter, phaseFilter, contests]);
+  }, [
+    search,
+    typeFilter,
+    phaseFilter,
+    contests,
+    favoriteContests,
+    showFavoritesOnly,
+  ]);
+
+  const toggleFavorite = (contestId: string) => {
+    setFavoriteContests((prev) =>
+      prev.includes(contestId)
+        ? prev.filter((id) => id !== contestId)
+        : [...prev, contestId]
+    );
+  };
 
   const handleSearchChange = (value: string) => setSearch(value);
   const handleTypeFilterChange = (value: string) =>
@@ -83,12 +109,31 @@ const Dashboard: React.FC = () => {
       {contest.phase}
     </Badge>,
     (contest.durationSeconds / 3600).toFixed(2) + " hours",
-    <Button
-      onClick={() => navigate(`/contest/${contest.id}`)}
-      variant="primary"
-    >
-      View Details
-    </Button>,
+    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+      <Tooltip
+        content={
+          favoriteContests.includes(contest.id.toString())
+            ? "Remove from Favorites"
+            : "Add to Favorites"
+        }
+      >
+        <Button
+          onClick={() => toggleFavorite(contest.id.toString())}
+          variant="plain"
+          icon={
+            favoriteContests.includes(contest.id.toString())
+              ? StarFilledIcon
+              : StarIcon
+          }
+        ></Button>
+      </Tooltip>
+      <Button
+        onClick={() => navigate(`/contest/${contest.id}`)}
+        variant="primary"
+      >
+        View Details
+      </Button>
+    </div>,
   ]);
 
   if (loading) {
@@ -112,11 +157,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <Page title="Codeforces Contest Dashboard">
-      <div
-        style={{
-          marginBottom: "20px",
-        }}
-      >
+      <div style={{ marginBottom: "20px" }}>
         <Layout>
           <Layout.Section>
             <Card>
@@ -147,7 +188,7 @@ const Dashboard: React.FC = () => {
                         label="Phase"
                         options={[
                           { label: "All", value: "All" },
-                          { label: "ONGOING", value: "ONGOING" },
+                          { label: "BEFORE", value: "BEFORE" },
                           { label: "FINISHED", value: "FINISHED" },
                         ]}
                         value={phaseFilter || "All"}
@@ -156,32 +197,51 @@ const Dashboard: React.FC = () => {
                     ),
                   },
                 ]}
-                appliedFilters={
-                  [
-                    typeFilter && typeFilter !== "All"
-                      ? {
+                appliedFilters={[
+                  ...(typeFilter && typeFilter !== "All"
+                    ? [
+                        {
                           key: "typeFilter",
                           label: `Type: ${typeFilter}`,
                           onRemove: () => setTypeFilter(null),
-                        }
-                      : undefined,
-                    phaseFilter && phaseFilter !== "All"
-                      ? {
+                        },
+                      ]
+                    : []),
+                  ...(phaseFilter && phaseFilter !== "All"
+                    ? [
+                        {
                           key: "phaseFilter",
                           label: `Phase: ${phaseFilter}`,
                           onRemove: () => setPhaseFilter(null),
-                        }
-                      : undefined,
-                  ].filter(Boolean) as AppliedFilterInterface[]
-                }
+                        },
+                      ]
+                    : []),
+                  ...(showFavoritesOnly
+                    ? [
+                        {
+                          key: "favoritesFilter",
+                          label: "Favorites Only",
+                          onRemove: () => setShowFavoritesOnly(false),
+                        },
+                      ]
+                    : []),
+                ]}
                 onQueryChange={handleSearchChange}
                 onQueryClear={() => setSearch("")}
                 onClearAll={() => {
                   setSearch("");
                   setTypeFilter(null);
                   setPhaseFilter(null);
+                  // setShowFavoritesOnly(false);
                 }}
-              />
+              >
+                <Button
+                  variant={showFavoritesOnly ? "primary" : "plain"}
+                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                >
+                  {showFavoritesOnly ? "Show All Contests" : "Show Favorites"}
+                </Button>
+              </Filters>
             </Card>
           </Layout.Section>
 
@@ -190,7 +250,6 @@ const Dashboard: React.FC = () => {
               <Text as="h2" variant="headingLg" fontWeight="bold">
                 Contest Graph
               </Text>
-              {/* Pass filtered contests to the graph */}
               <ContestGraph contests={filteredContests} />
             </Card>
           </Layout.Section>

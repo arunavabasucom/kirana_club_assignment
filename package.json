@@ -5,13 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": " vite build",
+    "build": " tsc -d && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@shopify/app-bridge-react": "^4.1.6",
     "@shopify/polaris": "^13.9.2",
+    "@shopify/polaris-icons": "^9.3.0",
     "chart.js": "^4.4.7",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.0",
